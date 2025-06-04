@@ -91,7 +91,7 @@ def optimize(data):
     return best_strategy, best_params
 
 if __name__ == '__main__':
-    root = Path().resolve().parent.parent
+    root = Path().resolve()
     print(f'CURRENT ROOT: {root}; root should be top level saudi_arabia')
 
     data = pd.read_csv(root / 'data' / 'goldsilver.csv', index_col=0)
