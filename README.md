@@ -1,1 +1,1 @@
-![Buffet](assets/img.jpg)
+![Buffet](assets/img.png)
