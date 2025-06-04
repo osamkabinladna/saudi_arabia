@@ -20,7 +20,7 @@ class StrategyOptimizer:
         zscore_exit = trial.suggest_float('zscore_exit', 0.25, 1.0, step=0.25)
 
         if signal_window >= hurst_window:
-            return -10 # PENALTY
+            return -10  # Negative penalty for maximization
 
         try:
             # Create strategy with trial parameters
@@ -36,24 +36,23 @@ class StrategyOptimizer:
             # Run backtest
             results, metrics = strategy.backtest(self.data)
 
-            # Return negative Sharpe ratio (Optuna minimizes)
+            # Get Sharpe ratio (positive value)
             sharpe = metrics.get('sharpe_ratio', -10)
 
-            # Add constraints
+            # Add constraints - return negative values for bad performance
             if metrics.get('num_trades', 0) < 10:  # Minimum trade requirement
                 return -10
             if metrics.get('max_drawdown', -1) < -0.5:  # Max 50% drawdown
                 return -10
 
-            return -sharpe  # Negative because Optuna minimizes
+            return sharpe  # Return positive Sharpe ratio for maximization
 
         except Exception as e:
-            return -10  # Heavy penalty for failed backtests
+            return -10  # Negative penalty for failed backtests
 
     def optimize(self, n_trials: int = 100, n_jobs: int = 1) -> Dict[str, Any]:
-        # Create study
         study = optuna.create_study(
-            direction='minimize',
+            direction='maximize',  # FIXED: Maximize Sharpe ratio
             sampler=TPESampler(seed=42)
         )
 
@@ -91,7 +90,7 @@ class StrategyOptimizer:
         axes[0, 0].plot([trial.value for trial in study.trials])
         axes[0, 0].set_title('Optimization History')
         axes[0, 0].set_xlabel('Trial')
-        axes[0, 0].set_ylabel('Objective Value (Negative Sharpe)')
+        axes[0, 0].set_ylabel('Objective Value (Sharpe Ratio)')  # FIXED: Updated label
         axes[0, 0].grid(True, alpha=0.3)
 
         try:
@@ -121,7 +120,7 @@ class StrategyOptimizer:
         axes[1, 1].axvline(x=study.best_value, color='red', linestyle='--',
                            label=f'Best: {study.best_value:.3f}')
         axes[1, 1].set_title('Objective Value Distribution')
-        axes[1, 1].set_xlabel('Objective Value (Negative Sharpe)')
+        axes[1, 1].set_xlabel('Objective Value (Sharpe Ratio)')  # FIXED: Updated label
         axes[1, 1].legend()
 
         plt.tight_layout()
@@ -176,6 +175,4 @@ class StrategyOptimizer:
             'mean_hurst': mean_hurst,
             'mean_reverting_regime_pct': mean_reverting_pct
         }
-
-
 
