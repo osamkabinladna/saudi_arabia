@@ -191,7 +191,6 @@ class HurstGoldSilverStrategy:
         return df
 
     def calculate_returns(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Calculate strategy returns with dollar-neutral positioning."""
         df = df.copy()
 
         # Add dollar-neutral positions
@@ -286,13 +285,6 @@ class HurstGoldSilverStrategy:
         }
 
     def plot_performance(self, df: pd.DataFrame, figsize: Tuple[int, int] = (15, 12)):
-        """
-        Create comprehensive performance plots.
-
-        Args:
-            df: Results dataframe from backtest
-            figsize: Figure size tuple
-        """
         fig, axes = plt.subplots(2, 2, figsize=figsize)
 
         # 1. Cumulative P&L
