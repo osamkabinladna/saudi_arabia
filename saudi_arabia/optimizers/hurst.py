@@ -15,9 +15,9 @@ class StrategyOptimizer:
     def objective(self, trial) -> float:
         hurst_window = trial.suggest_int('hurst_window', 50, 500, step=10)
         signal_window = trial.suggest_int('signal_window', 10, 200, step=5)
-        hurst_threshold = trial.suggest_float('hurst_threshold', 0.35, 0.55, step=0.05)
-        zscore_entry = trial.suggest_float('zscore_entry', 1.0, 3.0, step=0.25)
-        zscore_exit = trial.suggest_float('zscore_exit', 0.25, 1.0, step=0.25)
+        hurst_threshold = trial.suggest_float('hurst_threshold', 0.15, 0.45, step=0.01)
+        zscore_entry = trial.suggest_float('zscore_entry', 1.0, 3.0, step=0.05)
+        zscore_exit = trial.suggest_float('zscore_exit', 0.25, 1.0, step=0.05)
 
         if signal_window >= hurst_window:
             return -10  # Negative penalty for maximization
