@@ -541,34 +541,37 @@ class AlgoEvent:
 
     def _calc_momentum_enhanced(self, series):
         """Enhanced momentum with multiple timeframes"""
+        # clean and convert to numpy array
         vals = []
         for x in series:
             try:
                 vals.append(float(x))
             except:
                 continue
-        if len(vals) < 10:
+
+        arr = np.array(vals)
+        if arr.size < 10:
             return 0.0
 
-        # Calculate returns
-        rets = np.diff(vals) / np.abs(vals[:-1] + 1e-10)
+        # Calculate returns on the array
+        rets = np.diff(arr) / np.abs(arr[:-1] + 1e-10)
 
-        if len(rets) < 5:
+        if rets.size < 5:
             return 0.0
 
         # Short-term momentum
         short_mom = np.mean(rets[-5:])
 
         # Medium-term momentum
-        if len(rets) >= 20:
+        if rets.size >= 20:
             med_mom = np.mean(rets[-20:])
         else:
             med_mom = np.mean(rets)
 
         # Momentum quality (consistency)
-        if len(rets) > 10:
-            rolling_means = [np.mean(rets[i:i + 5]) for i in range(len(rets) - 5)]
-            mom_consistency = 1 - np.std(rolling_means) / (np.abs(np.mean(rolling_means)) + 1e-10)
+        if rets.size > 10:
+            rolling_means = [np.mean(rets[i:i + 5]) for i in range(rets.size - 5)]
+            mom_consistency = 1 - np.std(rolling_means) / (abs(np.mean(rolling_means)) + 1e-10)
         else:
             mom_consistency = 0.5
 
@@ -576,7 +579,7 @@ class AlgoEvent:
         combined_mom = 0.6 * short_mom + 0.3 * med_mom + 0.1 * mom_consistency
 
         # Normalize by volatility
-        vol = np.std(rets) if len(rets) > 1 else 1.0
+        vol = np.std(rets) if rets.size > 1 else 1.0
         return combined_mom / (vol + 1e-10) if vol > 0 else 0.0
 
     def _calc_hurst_corrected(self, series):
